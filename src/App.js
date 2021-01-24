@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react';
 import Form from './Form';
 import styled from 'styled-components';
 
-export const BASE_API_URL = "http://localhost:5000";
+export const BASE_API_URL = "https://server-side-knitting.herokuapp.com";
 
 // Styled components
 const StyledApp = styled.div`
@@ -43,6 +43,7 @@ const StyledTable = styled.table`
 `;
 
 function App() {
+  const [types, setTypes] = useState([]);
   const [projects, setProjects] = useState([]);
 
   // getting and setting projects data from mongodb
@@ -55,6 +56,16 @@ function App() {
     
     getProjects();
   }, [])
+ 
+    // gettting form type options from mongodb
+    useEffect(() => {
+      const getTypes = async () => {
+          const response = await fetch(`${BASE_API_URL}/project/types`)
+          const data = await response.json();
+          setTypes(data);
+      }
+      getTypes();
+  }, []);
 
   // deleting an items from projectslist
   const deleteRow = async (id)=>{
@@ -66,7 +77,9 @@ function App() {
       return project._id !== id;
     }));
   }
-  
+
+  const getTypeName = typeKey => types.find(type => type.value === typeKey)?.name ?? typeKey;
+    
   return (
     <StyledApp>
       <h1>Knitting Workbook</h1>
@@ -85,7 +98,7 @@ function App() {
             <tr key={project._id}>
               <td>{`${project.name}`}</td>
               <td>{`${project.date}`}</td>
-              <td>{`${project.type}`}</td>
+              <td>{`${getTypeName(project.type)}`}</td>
               <td>{`${project.yarn}`}</td>
               <td>
                 {/* finding id when clicking */}
@@ -98,7 +111,7 @@ function App() {
         
       <h2>Add new project</h2>
       {/* adding new item to list through form */}
-      <Form onProjectAdded={(newProject) => setProjects([...projects, newProject])}/>
+      <Form onProjectAdded={(newProject) => setProjects([...projects, newProject])} types={types}/>
 
     </StyledApp>
   );

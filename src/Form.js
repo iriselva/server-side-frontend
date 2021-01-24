@@ -28,23 +28,12 @@ const StyledButton = styled.button`
     }
 `;
 
-function Form({onProjectAdded}) {
-    const [types, setTypes] = useState([]);
+function Form({onProjectAdded, types}) {
     const [name, setName] = useState('');
     const [type, setType] = useState('');
     const [yarn, setYarn] = useState('');
     const [date, setDate] = useState('');
- 
-    // gettting form type options from mongodb
-    useEffect(() => {
-        const getTypes = async () => {
-            const response = await fetch(`${BASE_API_URL}/project/types`)
-            const data = await response.json();
-            setTypes(data);
-            setType(data[0].value);
-        }
-        getTypes();
-    }, []);
+
     
     // form post submition 
     const handleSubmit = async (event) => {
@@ -86,7 +75,7 @@ function Form({onProjectAdded}) {
             <StyledLabel htmlFor="type">Type:</StyledLabel>
                 <select 
                     name="type" 
-                    value={type} 
+                    value={type ?? types[0]?.value} 
                     onChange={(e) => setType(e.target.value)}>
                     {/* mapping throught options */}
                     {types.map(type => (
